@@ -1,33 +1,15 @@
 scopeName: source.par
 patterns:
-  - include: "#decl"
-  - include: "#def"
-  - include: "#typedef"
-  - include: "#let"
-  - include: "#keywords"
   - include: "#comments"
-  - include: "#literals"
-  - include: "#function-calls"
+  - include: "#strings"
+  - include: "#numbers"
+  - include: "#definitions"
+  - include: "#keywords"
+  - include: "#dot-keywords"
+  - include: "#selections"
+  - include: "#types"
   - include: "#names"
 repository:
-  keywords:
-    patterns:
-      - match: \b(begin|loop)\s*/\s*([\w_][\w\d_]*)\b
-        captures:
-          1: { name: keyword.control }
-          2: { name: entity.name.section }
-      - name: keyword.control
-        match: \b(let|do|case|begin|unfounded|loop|catch|throw|try)\b
-      - match: \b(recursive|iterative)\s*/\s*([\w_][\w\d_]*)\b
-        captures:
-          1: { name: keyword }
-          2: { name: entity.name }
-      - name: keyword
-        match: \b(chan|dual|in|let|telltypes|either|choice|recursive|iterative|self|box)\b
-      - name: keyword.declaration.type
-        match: \b(type)\b
-      - name: keyword.declaration
-        match: \b(dec|def)\b
   comments:
     patterns:
       - include: "#block-comment"
@@ -39,79 +21,80 @@ repository:
     end: \*/
     patterns:
       - include: "#block-comment"
-  literals:
+  strings:
     patterns:
-      - match: \b(-|\+)?\d[\d_]*\b
-        name: constant.numeric
       - begin: '"'
-        patterns:
-          - include: "#string-escape"
         end: '"'
         name: string.quoted.double
-      - begin: "'"
         patterns:
           - include: "#string-escape"
+      - begin: "'"
         end: "'"
         name: constant.character
+        patterns:
+          - include: "#string-escape"
   string-escape:
-    match: \\(b|f|n|r|t|'|"|\\|/|[0-7]{3}|u\{[\da-fA-F]+\}|u[\da-fA-F]{4}|x[\da-fA-F]{2})
     name: constant.character.escape
-  function-calls:
+    match: \\(b|f|n|r|t|'|"|\\|/|[0-7]{3}|u\{[\da-fA-F]+\}|u[\da-fA-F]{4}|x[\da-fA-F]{2})
+  numbers:
     patterns:
-      - match: ([A-Z][\w\d_]*)\s*\.\s*([A-Z][\w\d_]*)\s*\(
+      - name: constant.numeric
+        match: \b(-|\+)?\d[\d_]*\b
+  keywords:
+    patterns:
+      - match: \b(begin|loop|catch|try)\s*/\s*([a-z_][\w\d_]*)\b
         captures:
-          1: { name: entitylet .name.namespace }
+          1: { name: keyword.control }
+          2: { name: entity.name.label }
+      - match: \b(recursive|iterative)\s*/\s*([a-z_][\w\d_]*)\b
+        captures:
+          1: { name: keyword.other }
+          2: { name: entity.name.label }
+      - name: keyword.declaration
+        match: \b(dec|def|type|let)\b
+      - name: keyword.control
+        match: \b(do|case|in|chan|begin|loop|unfounded|catch|throw|try|default)\b
+      - name: keyword.other
+        match: \b(either|choice|recursive|iterative|self|box|dual|telltypes)\b
+      - name: keyword.operator
+        match: '!'
+  dot-keywords:
+    patterns:
+      - match: (\.)\s*(case|catch|try|begin|loop|unfounded|default)
+        captures:
+          1: { name: punctuation.accessor.dot }
+          2: { name: keyword.control }
+  definitions:
+    patterns:
+      - match: \b(dec)\s+([A-Z][\w\d_]*)
+        captures:
+          1: { name: keyword.declaration }
           2: { name: entity.name.function }
-      - match: \.\s*([a-z_][\w\d_]*)\s*\(
+      - match: \b(def)\s+([A-Z][\w\d_]*)
         captures:
-          1: { name: entity.name.function }
-      - match: \b([\w_][\w\d_]*)\s*\(
+          1: { name: keyword.declaration }
+          2: { name: entity.name.function }
+      - match: \b(type)\s+([A-Z][\w\d_]*)
         captures:
-          1: { name: entity.name.function }
-  decl:
-    begin: \b(dec)\s+(?:([A-Z][\w\d_]*)\s*:\s*\[|([A-Z][\w\d_]*)\s*:\s*)
-    beginCaptures:
-      1: { name: keyword.declaration }
-      2: { name: entity.name.function }
-      3: { name: entity.name }
+          1: { name: keyword.declaration }
+          2: { name: entity.name.type }
+  selections:
     patterns:
-      - include: "#types"
-    end: (?=def|dec|type)
-  def:
-    match: \b(def)\s+(?:([A-Z][\w\d_]*)\s*=\s*\[|([A-Z][\w\d_]*)\s*=\s*)
-    captures:
-      1: { name: keyword.declaration }
-      2: { name: entity.name.function }
-      3: { name: entity.name }
-  typedef:
-    begin: \b(type)\s+([A-Z][\w\d_]*)(?=\s*(<[\w\d_\s,]*>\s*)?=)
-    beginCaptures:
-      1: { name: keyword.declaration }
-      2: { name: entity.name.type }
-    patterns:
-      - include: "#types"
-    end: (?=def|dec|type)
+      - match: (\.)\s*([a-z_][\w\d_]*)
+        captures:
+          1: { name: punctuation.accessor.dot }
+          2: { name: support.function }
   types:
     patterns:
-      - match: \b(\w[\w\d_]*)\s*\.\s*([A-Z][\w\d_]*)\b
+      - match: \b([A-Z][\w\d_]*)\s*(\.)\s*([A-Z][\w\d_]*)\b
         captures:
-          1: { name: entity.name.namespace }
-          2: { name: entity.name.type }
+          1: { name: entity.name.type }
+          2: { name: punctuation.accessor.dot }
+          3: { name: entity.name.type }
       - match: \b([A-Z][\w\d_]*)\b
         captures:
           1: { name: entity.name.type }
-      - include: "#comments"
-      - include: "#keywords"
-  let:
+  names:
     patterns:
-      - begin: \b(let)\s+([\w_][\w\d_]*)\s*:\s*
-        beginCaptures:
-          1: { name: keyword }
-          2: { name: variable.other }
-        patterns:
-          - include: "#types"
-        end: "="
-      - match: \b(let)\s+([\w_][\w\d_]*)
-        captures:
-          1: { name: keyword }
-          2: { name: variable.other }
+      - match: \b[a-z_][\w\d_]*\b
+        name: variable.other
