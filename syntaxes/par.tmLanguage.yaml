@@ -42,14 +42,14 @@ repository:
         match: \b(-|\+)?\d[\d_]*\b
   keywords:
     patterns:
-      - match: \b(begin|loop|catch|try)\s*/\s*([a-z_][\w\d_]*)\b
+      - match: \b(begin|loop|catch|throw|try|unfounded)(@[a-z_][\w\d_]*)\b
         captures:
           1: { name: keyword.control }
-          2: { name: entity.name.label }
-      - match: \b(recursive|iterative)\s*/\s*([a-z_][\w\d_]*)\b
+          2: { name: constant.other }
+      - match: \b(recursive|iterative|self)(@[a-z_][\w\d_]*)\b
         captures:
           1: { name: keyword.other }
-          2: { name: entity.name.label }
+          2: { name: constant.other }
       - name: keyword.declaration
         match: \b(dec|def|type|let)\b
       - name: keyword.control
@@ -60,10 +60,11 @@ repository:
         match: '!'
   dot-keywords:
     patterns:
-      - match: (\.)\s*(case|catch|try|begin|loop|unfounded|default)
+      - match: (\.)\s*(case|catch|try|begin|loop|unfounded|default)(@([a-z_][\w\d_]*))?
         captures:
           1: { name: punctuation.accessor.dot }
           2: { name: keyword.control }
+          3: { name: constant.other }
   definitions:
     patterns:
       - match: \b(dec)\s+([A-Z][\w\d_]*)
