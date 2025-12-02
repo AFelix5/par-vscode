@@ -77,7 +77,7 @@
           "type": "string",
           "default": null,
           "description": "A path to the Par executable. By default, the extension looks for par in the PATH, but if set, will use the path specified instead.",
-          "scope": "machine"
+          "scope": "machine-overridable"
         }
       }
     }
