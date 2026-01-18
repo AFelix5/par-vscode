@@ -53,7 +53,7 @@ repository:
       - name: keyword.declaration
         match: \b(dec|def|type|let)\b
       - name: keyword.control
-        match: \b(do|case|in|chan|begin|loop|unfounded|catch|throw|try|default)\b
+        match: \b(do|case|in|chan|begin|loop|unfounded|catch|throw|try|default|else|if|is|and|or|not)\b
       - name: keyword.other
         match: \b(either|choice|recursive|iterative|self|box|dual|telltypes)\b
       - name: keyword.operator
