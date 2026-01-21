@@ -42,7 +42,7 @@ repository:
         match: \b(-|\+)?\d[\d_]*\b
   keywords:
     patterns:
-      - match: \b(begin|loop|catch|throw|try|unfounded)(@[a-z_][\w\d_]*)\b
+      - match: \b(begin|loop|catch|throw|try|unfounded|poll|repoll|submit)(@[a-z_][\w\d_]*)\b
         captures:
           1: { name: keyword.control }
           2: { name: constant.other }
@@ -53,14 +53,14 @@ repository:
       - name: keyword.declaration
         match: \b(dec|def|type|let)\b
       - name: keyword.control
-        match: \b(do|case|in|chan|begin|loop|unfounded|catch|throw|try|default|else|if|is|and|or|not)\b
+        match: \b(do|case|in|chan|begin|loop|unfounded|catch|throw|try|poll|repoll|submit|default|else|if|is|and|or|not)\b
       - name: keyword.other
         match: \b(either|choice|recursive|iterative|self|box|dual|telltypes)\b
       - name: keyword.operator
         match: '!'
   dot-keywords:
     patterns:
-      - match: (\.)\s*(case|catch|try|begin|loop|unfounded|default)(@([a-z_][\w\d_]*))?
+      - match: (\.)\s*(case|catch|try|begin|loop|unfounded|poll|repoll|submit|default)\b(@([a-z_][\w\d_]*))?
         captures:
           1: { name: punctuation.accessor.dot }
           2: { name: keyword.control }
