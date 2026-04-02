@@ -3,6 +3,8 @@ patterns:
   - include: "#comments"
   - include: "#strings"
   - include: "#numbers"
+  - include: "#module-declarations"
+  - include: "#imports"
   - include: "#definitions"
   - include: "#keywords"
   - include: "#dot-keywords"
@@ -40,6 +42,26 @@ repository:
     patterns:
       - name: constant.numeric
         match: \b(-|\+)?\d[\d_]*\b
+  module-declarations:
+    patterns:
+      - match: \b(export)\s+(module)\s+([A-Z][\w\d_]*)\b
+        captures:
+          1: { name: keyword.declaration }
+          2: { name: keyword.declaration }
+          3: { name: entity.name.namespace }
+      - match: \b(module)\s+([A-Z][\w\d_]*)\b
+        captures:
+          1: { name: keyword.declaration }
+          2: { name: entity.name.namespace }
+  imports:
+    patterns:
+      - match: \b(import)\b|\b(as)\b
+        captures:
+          0: { name: keyword.declaration }
+      - match: (@)([a-z_][\w\d_]*)\b
+        captures:
+          1: { name: punctuation.definition.keyword }
+          2: { name: entity.name.namespace }
   keywords:
     patterns:
       - match: \b(begin|loop|catch|throw|try|unfounded|poll|repoll|submit)(@[a-z_][\w\d_]*)\b
@@ -51,11 +73,11 @@ repository:
           1: { name: keyword.other }
           2: { name: constant.other }
       - name: keyword.declaration
-        match: \b(dec|def|type|let)\b
+        match: \b(dec|def|type|let|module|import|export)\b
       - name: keyword.control
         match: \b(do|case|in|chan|begin|loop|unfounded|catch|throw|try|poll|repoll|submit|default|else|if|is|and|or|not)\b
       - name: keyword.other
-        match: \b(either|choice|recursive|iterative|self|box|dual|telltypes)\b
+        match: \b(either|choice|recursive|iterative|self|box|dual|as|external)\b
       - name: keyword.operator
         match: '!'
   dot-keywords:
@@ -67,18 +89,24 @@ repository:
           3: { name: constant.other }
   definitions:
     patterns:
-      - match: \b(dec)\s+([A-Z][\w\d_]*)
+      - match: \b(dec)\s+([A-Z][\w\d_]*)(?:\s*(\.)\s*([A-Z][\w\d_]*))?\b
         captures:
           1: { name: keyword.declaration }
           2: { name: entity.name.function }
-      - match: \b(def)\s+([A-Z][\w\d_]*)
+          3: { name: punctuation.accessor.dot }
+          4: { name: entity.name.function }
+      - match: \b(def)\s+([A-Z][\w\d_]*)(?:\s*(\.)\s*([A-Z][\w\d_]*))?\b
         captures:
           1: { name: keyword.declaration }
           2: { name: entity.name.function }
-      - match: \b(type)\s+([A-Z][\w\d_]*)
+          3: { name: punctuation.accessor.dot }
+          4: { name: entity.name.function }
+      - match: \b(type)\s+([A-Z][\w\d_]*)(?:\s*(\.)\s*([A-Z][\w\d_]*))?\b
         captures:
           1: { name: keyword.declaration }
           2: { name: entity.name.type }
+          3: { name: punctuation.accessor.dot }
+          4: { name: entity.name.type }
   selections:
     patterns:
       - match: (\.)\s*([a-z_][\w\d_]*)
