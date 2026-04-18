@@ -6,6 +6,7 @@ patterns:
   - include: "#module-declarations"
   - include: "#imports"
   - include: "#definitions"
+  - include: "#type-parameter-constraints"
   - include: "#keywords"
   - include: "#dot-keywords"
   - include: "#selections"
@@ -62,6 +63,21 @@ repository:
         captures:
           1: { name: punctuation.definition.keyword }
           2: { name: entity.name.namespace }
+  type-parameter-constraints:
+    patterns:
+      - match: (<)\s*([a-z_][\w\d_]*)\s*(:)\s*(box|data|number|signed)\s*(>)
+        captures:
+          1: { name: punctuation.definition.type-parameters.begin }
+          2: { name: variable.other }
+          3: { name: punctuation.separator.annotation }
+          4: { name: storage.type.constraint.par }
+          5: { name: punctuation.definition.type-parameters.end }
+      - match: \b(type)\s+([a-z_][\w\d_]*)\s*(:)\s*(box|data|number|signed)\b
+        captures:
+          1: { name: keyword.declaration }
+          2: { name: variable.other }
+          3: { name: punctuation.separator.annotation }
+          4: { name: storage.type.constraint.par }
   keywords:
     patterns:
       - match: \b(begin|loop|catch|throw|try|unfounded|poll|repoll|submit)(@[a-z_][\w\d_]*)\b
