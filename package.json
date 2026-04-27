@@ -2,7 +2,7 @@
   "name": "par-vscode",
   "displayName": "par-vscode",
   "description": "Support for the Par language",
-  "version": "0.0.6",
+  "version": "0.0.10",
   "publisher": "par-lang",
   "engines": {
     "vscode": "^1.98.0"
@@ -97,7 +97,7 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.13.11",
     "@types/vscode": "^1.98.0",
-    "@vscode/vsce": "^3.3.0",
+    "@vscode/vsce": "^3.7.0",
     "concurrently": "^9.2.0",
     "esbuild": "^0.23.0",
     "glob": "^11.0.1",

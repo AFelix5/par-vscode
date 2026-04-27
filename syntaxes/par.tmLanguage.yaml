@@ -3,9 +3,13 @@ patterns:
   - include: "#comments"
   - include: "#strings"
   - include: "#numbers"
+  - include: "#module-declarations"
+  - include: "#imports"
   - include: "#definitions"
+  - include: "#type-parameter-constraints"
   - include: "#keywords"
   - include: "#dot-keywords"
+  - include: "#operators"
   - include: "#selections"
   - include: "#types"
   - include: "#names"
@@ -23,6 +27,7 @@ repository:
       - include: "#block-comment"
   strings:
     patterns:
+      - include: "#template-string"
       - begin: '"'
         end: '"'
         name: string.quoted.double
@@ -33,16 +38,102 @@ repository:
         name: constant.character
         patterns:
           - include: "#string-escape"
+  template-string:
+    begin: "`"
+    beginCaptures:
+      0: { name: punctuation.definition.string.begin.par }
+    end: "`"
+    endCaptures:
+      0: { name: punctuation.definition.string.end.par }
+    name: string.quoted.template.par
+    patterns:
+      - include: "#template-escape"
+      - include: "#template-interpolation"
+  template-escape:
+    name: constant.character.escape
+    match: >-
+      \\(`|\$\{|#\{|b|f|n|r|t|'|"|\\|/|[0-7]{3}|u\{[\da-fA-F]+\}|u[\da-fA-F]{4}|x[\da-fA-F]{2})
+  template-interpolation:
+    patterns:
+      - begin: '(\$)(\{)'
+        beginCaptures:
+          1: { name: punctuation.definition.template-interpolation.string.par }
+          2: { name: punctuation.section.embedded.begin.par }
+        end: '(\})'
+        endCaptures:
+          1: { name: punctuation.section.embedded.end.par }
+        name: meta.interpolation.template.string.par
+        contentName: source.par.embedded
+        patterns:
+          - include: "#template-interpolation-braces"
+          - include: "$self"
+      - begin: '(#)(\{)'
+        beginCaptures:
+          1: { name: punctuation.definition.template-interpolation.data.par }
+          2: { name: punctuation.section.embedded.begin.par }
+        end: '(\})'
+        endCaptures:
+          1: { name: punctuation.section.embedded.end.par }
+        name: meta.interpolation.template.data.par
+        contentName: source.par.embedded
+        patterns:
+          - include: "#template-interpolation-braces"
+          - include: "$self"
+  template-interpolation-braces:
+    begin: '\{'
+    beginCaptures:
+      0: { name: punctuation.section.block.begin.par }
+    end: '\}'
+    endCaptures:
+      0: { name: punctuation.section.block.end.par }
+    patterns:
+      - include: "#template-interpolation-braces"
+      - include: "$self"
   string-escape:
     name: constant.character.escape
     match: \\(b|f|n|r|t|'|"|\\|/|[0-7]{3}|u\{[\da-fA-F]+\}|u[\da-fA-F]{4}|x[\da-fA-F]{2})
   numbers:
     patterns:
       - name: constant.numeric
-        match: \b(-|\+)?\d[\d_]*\b
+        match: \b[+-]?\d[\d_]*(?:\.\d[\d_]*(?:[eE][+-]?\d[\d_]*)?)?\b
+  module-declarations:
+    patterns:
+      - match: \b(export)\s+(module)\s+([A-Z][\w\d_]*)\b
+        captures:
+          1: { name: keyword.declaration }
+          2: { name: keyword.declaration }
+          3: { name: entity.name.namespace }
+      - match: \b(module)\s+([A-Z][\w\d_]*)\b
+        captures:
+          1: { name: keyword.declaration }
+          2: { name: entity.name.namespace }
+  imports:
+    patterns:
+      - match: \b(import)\b|\b(as)\b
+        captures:
+          0: { name: keyword.declaration }
+      - match: (@)([a-z_][\w\d_]*)\b
+        captures:
+          1: { name: punctuation.definition.keyword }
+          2: { name: entity.name.namespace }
+  type-parameter-constraints:
+    patterns:
+      - match: (<)\s*([a-z_][\w\d_]*)\s*(:)\s*(box|data|number|signed)\s*(>)
+        captures:
+          1: { name: punctuation.definition.type-parameters.begin }
+          2: { name: variable.other }
+          3: { name: punctuation.separator.annotation }
+          4: { name: storage.type.constraint.par }
+          5: { name: punctuation.definition.type-parameters.end }
+      - match: \b(type)\s+([a-z_][\w\d_]*)\s*(:)\s*(box|data|number|signed)\b
+        captures:
+          1: { name: keyword.declaration }
+          2: { name: variable.other }
+          3: { name: punctuation.separator.annotation }
+          4: { name: storage.type.constraint.par }
   keywords:
     patterns:
-      - match: \b(begin|loop|catch|throw|try|unfounded)(@[a-z_][\w\d_]*)\b
+      - match: \b(begin|loop|catch|throw|try|unfounded|poll|repoll|submit)(@[a-z_][\w\d_]*)\b
         captures:
           1: { name: keyword.control }
           2: { name: constant.other }
@@ -51,34 +142,50 @@ repository:
           1: { name: keyword.other }
           2: { name: constant.other }
       - name: keyword.declaration
-        match: \b(dec|def|type|let)\b
+        match: \b(dec|def|type|let|module|import|export)\b
       - name: keyword.control
-        match: \b(do|case|in|chan|begin|loop|unfounded|catch|throw|try|default)\b
+        match: \b(do|case|in|chan|begin|loop|unfounded|catch|throw|try|poll|repoll|submit|default|else|if|is|and|or|not)\b
       - name: keyword.other
-        match: \b(either|choice|recursive|iterative|self|box|dual|telltypes)\b
+        match: \b(either|choice|recursive|iterative|self|box|dual|as|external)\b
       - name: keyword.operator
         match: '!'
   dot-keywords:
     patterns:
-      - match: (\.)\s*(case|catch|try|begin|loop|unfounded|default)(@([a-z_][\w\d_]*))?
+      - match: (\.)\s*(case|catch|try|begin|loop|unfounded|poll|repoll|submit|default)\b(@([a-z_][\w\d_]*))?
         captures:
           1: { name: punctuation.accessor.dot }
           2: { name: keyword.control }
           3: { name: constant.other }
+  operators:
+    patterns:
+      - name: keyword.operator.word.par
+        match: \bneg\b
+      - name: keyword.operator.link.par
+        match: (<-|->|<>)
+      - name: keyword.operator.comparison.par
+        match: (==|!=|<=|>=|<|>)
+      - name: keyword.operator.arithmetic.par
+        match: (\+=|-=|\*=|/=|\+|-|\*|/)
   definitions:
     patterns:
-      - match: \b(dec)\s+([A-Z][\w\d_]*)
+      - match: \b(dec)\s+([A-Z][\w\d_]*)(?:\s*(\.)\s*([A-Z][\w\d_]*))?\b
         captures:
           1: { name: keyword.declaration }
           2: { name: entity.name.function }
-      - match: \b(def)\s+([A-Z][\w\d_]*)
+          3: { name: punctuation.accessor.dot }
+          4: { name: entity.name.function }
+      - match: \b(def)\s+([A-Z][\w\d_]*)(?:\s*(\.)\s*([A-Z][\w\d_]*))?\b
         captures:
           1: { name: keyword.declaration }
           2: { name: entity.name.function }
-      - match: \b(type)\s+([A-Z][\w\d_]*)
+          3: { name: punctuation.accessor.dot }
+          4: { name: entity.name.function }
+      - match: \b(type)\s+([A-Z][\w\d_]*)(?:\s*(\.)\s*([A-Z][\w\d_]*))?\b
         captures:
           1: { name: keyword.declaration }
           2: { name: entity.name.type }
+          3: { name: punctuation.accessor.dot }
+          4: { name: entity.name.type }
   selections:
     patterns:
       - match: (\.)\s*([a-z_][\w\d_]*)
